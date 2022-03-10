@@ -1,5 +1,3 @@
-
-
 server <- function(input, output){
   output$max <- renderDataTable({
     first_date <- input$dates[1]
@@ -14,6 +12,10 @@ server <- function(input, output){
         by = "symbol",
         suffix = c("First", "Last")
       )
+  }
+  )
+  
+}
     f <- first_last_day %>%
       mutate(PercentChange = (OpenLast - OpenFirst) / OpenFirst) %>%
       mutate(PercentChangeStr = paste0(round(PercentChange * 100, 1), "%")) %>%
@@ -22,8 +24,7 @@ server <- function(input, output){
     f<-as.data.frame(f[which.max(f$PercentChange),])
     f
   
-}
-
+shinyApp(ui, server)
 
 
 
