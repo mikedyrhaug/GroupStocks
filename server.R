@@ -15,15 +15,12 @@ server <- function(input, output){
         suffix = c("First", "Last")
       )
     f <- first_last_day %>%
-      mutate(PercentChange = (OpenLast - OpenFirst) / OpenFirst) %>%
+      mutate(PercentChange = (openLast - openFirst) / openFirst) %>%
       mutate(PercentChangeStr = paste0(round(PercentChange * 100, 1), "%")) %>%
-      select(Symbol, OpenFirst, OpenLast, PercentChange, PercentChangeStr)
+      select(symbol, security, openFirst, openLast, PercentChange, PercentChangeStr)
     
     f<-as.data.frame(f[which.max(f$PercentChange),])
     f
-  
-}
-
-
-
+  })
+}  
 
