@@ -8,11 +8,11 @@ ui <- fluidPage(
   navbarPage("Stocks",
              tabPanel("Best Performing Stock",
                       dateRangeInput("dates", label = "Date range", 
-                                     start = min(gafa_stock$Date),
-                                     end=max(gafa_stock$Date)),
+                                     start = min(stock$Date),
+                                     end=max(stock$Date)),
                       dataTableOutput("max")))
 )
-getwd()
+
 
 
 
