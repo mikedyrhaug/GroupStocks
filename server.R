@@ -10,23 +10,19 @@ server <- function(input, output){
       inner_join(
         last_day,
         by = "symbol",
-        suffix = c("First", "Last")
-      )
-  }
-  )
-  
-}
+        suffix = c("First", "Last"))
     f <- first_last_day %>%
       mutate(PercentChange = (openLast - openFirst) / openFirst) %>%
       mutate(PercentChangeStr = paste0(round(PercentChange * 100, 1), "%")) %>%
-      select(symbol, security, openFirst, openLast, PercentChange, PercentChangeStr)
+      select(symbol, openFirst, openLast, PercentChange, PercentChangeStr)
     
     f<-as.data.frame(f[which.max(f$PercentChange),])
     f
 
   })
 }  
-=======
+
+
   
 shinyApp(ui, server)
 
