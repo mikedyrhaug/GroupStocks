@@ -5,6 +5,8 @@ library(fpp3)
 library(DT)
 
 stocks <- read_csv("nyse_stocks.csv.zip")
+stocks$date <- as.Date(stocks$date)
+stocks <- tsibble(stocks, index = date, key = symbol)
 
 ui <- fluidPage(
   navbarPage("Stocks",
@@ -16,26 +18,26 @@ ui <- fluidPage(
                       dataTableOutput("max")), 
              #Feature 2
              tabPanel("Sector Performance", 
-                     radioButtons("sec", label = "select a sector",
+                     radioButtons("featureTwoSec", label = "select a sector",
                                    choices = unique(stocks$gics_sector) 
                       ),
-                      dateRangeInput("d", label= "insert a date", 
+                      dateRangeInput("featureTwod", label= "insert a date", 
                                      start=min(stocks$date), 
                                      end=max(stocks$date)),
                       dataTableOutput("tab2")),
              #Feature 3
-             tabPanel("Compare Multiple Secotrs",
-                      radioButtons("sec", label = "select a sector",
+             tabPanel("Compare Multiple Sectors",
+                      radioButtons("featureThreesec", label = "select a sector",
                                    choices = unique(stocks$gics_sector) 
                       ),
-                      dateRangeInput("d", label= "insert a date", 
+                      dateRangeInput("featureThreed", label= "insert a date", 
                                      start=min(stocks$date), 
                                      end=max(stocks$date)),
                       dataTableOutput("tab2")),
              #Feature 4
              tabPanel("Calculated Profit/Loss",
                       numericInput("num", label = "How much money would I have if I bought this many shares", value = 1),
-                      dateRangeInput("date", label= "Buying and selling on these dates", 
+                      dateRangeInput("featureFourdate", label= "Buying and selling on these dates", 
                                      start=min(stocks$date), 
                                      end=max(stocks$date)),
                       textInput("text", 
@@ -69,9 +71,9 @@ server <- function(input, output){
   
   #Feature 2
   output$tab2 <- renderDataTable({
-    p <- filter(stocks, stocks$gics_sector==input$sec)
-    first_date <- input$d[1]
-    last_date <- input$d[2]
+    p <- filter(stocks, stocks$gics_sector==input$featureTwoSec)
+    first_date <- input$featureTwod[1]
+    last_date <- input$featureTwod[2]
     first_day <- p %>%
       filter(date == first_date)
     last_day <- p %>%
@@ -81,12 +83,12 @@ server <- function(input, output){
         last_day,
         by = "symbol",
         suffix = c("First", "Last"))
-    f <- first_last_day %>%
+    featureTwo <- first_last_day %>%
       mutate(PercentChange = (openLast - openFirst) / openFirst) %>%
       mutate(PercentChangeStr = paste0(round(PercentChange * 100, 1), "%")) %>%
       select(symbol, openFirst, openLast, PercentChange, PercentChangeStr)
-    f<-as.data.frame(f[which.max(f$PercentChange),])
-    f
+    featureTwo<-as.data.frame(featureTwo[which.max(featureTwo$PercentChange),])
+    featureTwo
   })
   
   #Feature 3
@@ -100,8 +102,8 @@ server <- function(input, output){
   #Feature 4
   output$tab4 <- renderPrint({
     number <- stocks[stocks$security==input$text,]
-    first_day <- number[number$date==input$date[1],]
-    last_day <- number[number$date==input$date[2],]
+    first_day <- number[number$date==input$featureFourdate[1],]
+    last_day <- number[number$date==input$featureFourdate[2],]
     dolla <- (last_day$open*input$num)-(first_day$open*input$num)
     paste("$", round(dolla,2))
   })
