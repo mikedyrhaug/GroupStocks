@@ -81,7 +81,7 @@ server <- function(input,output){
     autoplot(ag)
   })
 }
-
+shinyApp(ui,server)
 #feature 4
 
 ui <- fluidPage(
@@ -106,6 +106,37 @@ server <- function(input, output){
 }
 shinyApp(ui,server)
 
+ui <- fluidPage(
+  navbarPage("Stocks",
+             #Feature 1
+             tabPanel("Best Performing Stock",
+                      dateRangeInput("dates", label = "Input  date range to find the best performing stock in that time period", 
+                                     start = min(stocks$date),
+                                     end=max(stocks$date)),
+                      dataTableOutput("max"))))
 
-
+server <- function(input, output){
+  output$max <- renderDataTable({
+    first_date <- input$dates[1]
+    last_date <- input$dates[2]
+    first_day <- stocks %>%
+      filter(date == first_date)
+    last_day <- stocks %>%
+      filter(date == last_date)
+    first_last_day <- first_day %>%
+      inner_join(
+        last_day,
+        by = "symbol",
+        suffix = c("First", "Last"))
+    f <- first_last_day %>%
+      mutate(PercentChange = (openLast - openFirst) / openFirst) %>%
+      mutate(PercentChangeStr = paste0(round(PercentChange * 100, 1), "%")) %>%
+      select(symbol, openFirst, openLast, PercentChange, PercentChangeStr)
+    
+    f<-as.data.frame(f[which.max(f$PercentChange),])
+    f
+    
+  })
+}
+shinyApp(ui,server)
 
